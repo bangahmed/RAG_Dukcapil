@@ -44,7 +44,7 @@ Diagram alur lengkap (pembuatan indeks, penanganan satu pertanyaan, pembatasan l
 ## Struktur
 
 ```text
-app.py                     halaman utama aplkasi (Streamlit)
+app.py                     halaman utama aplikasi (Streamlit)
 dukcapil_pintar/           paket inti
   config.py                lokasi berkas, parameter RAG, daftar model, pembaca secret
   ingestion.py             membaca PDF/TXT → teks per halaman
