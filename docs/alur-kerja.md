@@ -1,26 +1,27 @@
 # Alur Kerja DUKCAPIL-Pintar
 
-Dokumen ini menggambarkan cara prototipe RAG v1 bekerja, dari PDF regulasi sampai jawaban
-yang menyebut pasal rujukannya. Diagram memakai [Mermaid](https://mermaid.js.org/), jadi tampil
-langsung di GitHub dan bisa diubah sebagai teks.
+Dokumen ini menguraikan cara kerja prototipe RAG v1, mulai dari berkas PDF regulasi hingga
+jawaban yang menyebutkan pasal rujukannya. Diagram disusun dengan [Mermaid](https://mermaid.js.org/)
+sehingga dapat ditampilkan langsung pada GitHub dan dapat disunting sebagai teks.
 
-**Keterangan warna** (berlaku di semua diagram):
+**Keterangan warna** (berlaku pada seluruh diagram):
 
 | Warna | Arti |
 |---|---|
-| Hijau | Berjalan **lokal** di mesin sendiri (tanpa mengirim teks ke provider) |
+| Hijau | Berjalan **secara lokal** pada perangkat sendiri (teks tidak dikirim ke penyedia layanan) |
 | Jingga | **Groq** (`openai/gpt-oss-120b`), jalur generasi utama |
 | Clay | **Anthropic** (Claude Sonnet 5.5 dan Haiku 5.5) |
-| Abu | Data, berkas, pengguna, dan titik keputusan |
-| Kuning | Galat atau peringatan yang ditampilkan ke pengguna |
+| Abu-abu | Data, berkas, pengguna, dan titik keputusan |
+| Kuning | Galat atau peringatan yang ditampilkan kepada pengguna |
 
 ---
 
-## 1. Gambaran besar
+## 1. Gambaran umum
 
-Tiga jalur memakai indeks regulasi yang sama: pembuatan indeks (sekali), aplikasi untuk warga
-(tiap pertanyaan), dan evaluasi (tiap putaran uji). Aplikasi dan evaluasi memakai kelas
-`RagPipeline` yang sama, sehingga yang dievaluasi persis yang didemokan.
+Tiga jalur menggunakan indeks regulasi yang sama, yaitu pembuatan indeks (sekali), aplikasi bagi
+warga (setiap pertanyaan), dan evaluasi (setiap putaran pengujian). Aplikasi dan evaluasi
+menggunakan kelas `RagPipeline` yang sama sehingga yang dievaluasi identik dengan yang
+didemonstrasikan.
 
 ```mermaid
 flowchart LR
@@ -36,13 +37,13 @@ flowchart LR
 
     pipe{{"RagPipeline<br/>pipeline.py"}}:::lokal
 
-    subgraph ON["Aplikasi warga (tiap pertanyaan)"]
+    subgraph ON["Aplikasi warga (setiap pertanyaan)"]
         warga(["Warga"]):::data
         app["app.py<br/>Streamlit"]:::lokal
         warga <--> app
     end
 
-    subgraph EV["Evaluasi (tiap putaran)"]
+    subgraph EV["Evaluasi (setiap putaran)"]
         uji[("Set uji<br/>14 pertanyaan")]:::data
         eval["scripts/<br/>run-evaluation.py"]:::lokal
         hasil[("CSV dan<br/>ringkasan")]:::data
@@ -60,10 +61,11 @@ flowchart LR
 
 ---
 
-## 2. Pembuatan indeks (offline, sekali jalan)
+## 2. Pembuatan indeks (luring, satu kali)
 
-`python scripts/build-index.py` menjalankan empat langkah berurutan. Tiap langkah menyimpan
-keluarannya, sehingga bisa dijalankan sebagian dengan `--only`, misalnya `--only embed,index`.
+Perintah `python scripts/build-index.py` menjalankan empat langkah secara berurutan. Setiap
+langkah menyimpan keluarannya sehingga dapat dijalankan sebagian dengan opsi `--only`, misalnya
+`--only embed,index`.
 
 ```mermaid
 flowchart LR
@@ -71,26 +73,27 @@ flowchart LR
     classDef data fill:#f5f5f4,stroke:#a8a29e,color:#44403c
 
     src[("sources.csv<br/>+ data/raw<br/>PDF dan lampiran OCR")]:::data
-    s1["1 · step_extract<br/>baca teks per halaman<br/>buang noise halaman<br/>perbaiki judul pasal<br/>keluaran: pages.jsonl"]:::lokal
-    s2["2 · step_chunk<br/>pecah per pasal<br/>pasal panjang dipecah<br/>maks. 1.500 karakter<br/>keluaran: chunks.jsonl<br/>±950 chunk"]:::lokal
+    s1["1 · step_extract<br/>membaca teks per halaman<br/>menghapus elemen<br/>pengulangan halaman<br/>memperbaiki judul pasal<br/>keluaran: pages.jsonl"]:::lokal
+    s2["2 · step_chunk<br/>memecah per pasal<br/>pasal panjang dipecah<br/>maks. 1.500 karakter<br/>keluaran: chunks.jsonl<br/>±950 chunk"]:::lokal
     s3["3 · step_embed<br/>mpnet multilingual<br/>vektor 768 dimensi<br/>keluaran:<br/>embeddings.npy"]:::lokal
     s4["4 · step_index<br/>FAISS IndexFlatIP<br/>keluaran:<br/>faiss.index +<br/>chunk_metadata.jsonl"]:::lokal
 
     src --> s1 --> s2 --> s3 --> s4
 ```
 
-Alasan chunk per pasal: peraturan berstruktur jelas, satu pasal umumnya satu ketentuan utuh, dan
-jawaban harus bisa menyebut nomor pasal. Tiap chunk diawali header `[Perpres 96/2018 · Pasal 34]`
-yang ikut di-embed, agar pertanyaan yang menyebut nama regulasi atau nomor pasal lebih mudah
-menemukan potongannya. Bagian Penjelasan dan butir perubahan pada UU perubahan diberi label
-tersendiri supaya tidak tertukar dengan batang tubuh.
+Pemecahan chunk per pasal dipilih karena peraturan perundang-undangan berstruktur jelas, satu
+pasal umumnya memuat satu ketentuan utuh, dan jawaban harus dapat menyebutkan nomor pasal. Setiap
+chunk diawali header `[Perpres 96/2018 · Pasal 34]` yang turut di-*embed* agar pertanyaan yang
+menyebut nama regulasi atau nomor pasal lebih mudah menemukan potongan yang sesuai. Bagian
+Penjelasan dan butir perubahan pada undang-undang perubahan diberi label tersendiri agar tidak
+tertukar dengan batang tubuh.
 
 ---
 
-## 3. Menjawab satu pertanyaan (online)
+## 3. Menjawab satu pertanyaan (daring)
 
-Urutan yang terjadi tiap kali warga bertanya. Penulis ulang kueri bersifat opsional
-(`DUKCAPIL_QUERY_REWRITE`) dan kegagalannya tidak menggagalkan jawaban.
+Urutan proses yang terjadi setiap kali warga mengajukan pertanyaan. Penulis ulang kueri bersifat
+opsional (`DUKCAPIL_QUERY_REWRITE`) dan kegagalannya tidak menggagalkan jawaban.
 
 ```mermaid
 sequenceDiagram
@@ -107,22 +110,22 @@ sequenceDiagram
     P->>S: ubah ke istilah regulasi
     alt berhasil
         S-->>P: kueri berbahasa regulasi
-    else gagal atau dimatikan
-        S-->>P: dilewati, pakai pertanyaan asli
+    else gagal atau dinonaktifkan
+        S-->>P: dilewati, memakai pertanyaan asli
     end
     P->>L: cari pasal untuk pertanyaan dan kueri
     L-->>P: 4 pasal teratas
     Note over P,L: hasil dua kueri digabung,<br/>skor tertinggi per chunk
     P->>M: prompt answer-v1.1<br/>konteks 4 pasal + pertanyaan
-    Note over M: jawab hanya dari konteks,<br/>sertakan rujukan pasal
+    Note over M: menjawab hanya dari konteks,<br/>menyertakan rujukan pasal
     M-->>P: jawaban, atau<br/>"Informasi tidak ditemukan di dokumen."
     P-->>UI: AnswerResult
-    UI-->>W: jawaban, panel konteks,<br/>kartu pasal, chip model
+    UI-->>W: jawaban, panel konteks,<br/>kartu pasal, label model
 ```
 
-Yang ditampilkan ke warga selalu memuat: jawaban, konteks yang diambil (bisa disalin), kartu
-pasal dengan tautan ke sumber resmi, dan chip "Dijawab oleh {model}". Token dan latency hanya
-dicatat untuk evaluasi, tidak tampil di antarmuka.
+Tampilan yang disajikan kepada warga selalu memuat jawaban, konteks yang diambil (dapat
+disalin), kartu pasal beserta tautan ke sumber resmi, dan label "Dijawab oleh {model}". Jumlah
+token dan latency hanya dicatat untuk keperluan evaluasi dan tidak ditampilkan pada antarmuka.
 
 ---
 
@@ -130,18 +133,19 @@ dicatat untuk evaluasi, tidak tampil di antarmuka.
 
 | Tahap | Model | Lokasi | Catatan |
 |---|---|---|---|
-| Embedding pertanyaan dan pasal | `paraphrase-multilingual-mpnet-base-v2` | Lokal | Wajib lokal (syarat RTM 2). Puncak memori ±1,9 GB |
-| Penulis ulang kueri | Claude Sonnet 5.5 | Anthropic | Opsional, bisa dimatikan |
-| Penjawab utama (default) | Groq `openai/gpt-oss-120b` | Groq | Jalur generasi utama sesuai ketentuan RTM 2 |
-| Penjawab pembanding dan cadangan | Claude Haiku 5.5 | Anthropic | Dipilih manual atau lewat tombol saat Groq kena batas |
-| Juri evaluasi | Claude Sonnet 5.5 | Anthropic | Berbeda dari penjawab default, jadi tidak menilai jawabannya sendiri |
+| Embedding pertanyaan dan pasal | `paraphrase-multilingual-mpnet-base-v2` | Lokal | Wajib lokal (persyaratan RTM 2). Puncak memori ±1,9 GB |
+| Penulis ulang kueri | Claude Sonnet 5.5 | Anthropic | Opsional, dapat dinonaktifkan |
+| Penjawab utama (bawaan) | Groq `openai/gpt-oss-120b` | Groq | Jalur generasi utama sesuai ketentuan RTM 2 |
+| Penjawab pembanding dan cadangan | Claude Haiku 5.5 | Anthropic | Dipilih secara manual atau melalui tombol ketika Groq terkena pembatasan |
+| Juri evaluasi | Claude Sonnet 5.5 | Anthropic | Berbeda dari penjawab bawaan sehingga tidak menilai jawabannya sendiri |
 
 ---
 
-## 5. Rate limit dan model cadangan
+## 5. Pembatasan laju dan model cadangan
 
-Model yang tampil di antarmuka selalu model yang benar-benar menjawab. Sistem **tidak pernah**
-berpindah model diam-diam: pindah ke Haiku hanya terjadi saat pengguna menekan tombolnya.
+Model yang tampil pada antarmuka selalu merupakan model yang benar-benar menjawab. Sistem
+**tidak pernah** berpindah model tanpa sepengetahuan pengguna: perpindahan ke Haiku hanya terjadi
+ketika pengguna menekan tombol yang tersedia.
 
 ```mermaid
 flowchart TD
@@ -152,24 +156,24 @@ flowchart TD
     classDef galat fill:#fffbeb,stroke:#d97706,color:#78350f
 
     mulai(["Pertanyaan dikirim<br/>dengan model terpilih"]):::data
-    kunci{"API key<br/>ada?"}:::tanya
+    kunci{"API key<br/>tersedia?"}:::tanya
     tanpa["Panel galat:<br/>API key belum diisi"]:::galat
-    panggil["Panggil model"]:::lokal
-    hasil{"Hasil<br/>panggilan?"}:::tanya
-    ok(["Jawaban + chip<br/>model penjawab"]):::lokal
-    retry["Coba ulang dengan jeda<br/>2, 4, lalu 8 detik<br/>maks. 4 percobaan"]:::lokal
-    permanen["Galat permanen:<br/>kunci atau ID model salah<br/>dilaporkan, tanpa retry"]:::galat
-    pesan["Pesan jelas: model membatasi<br/>permintaan, plus tombol<br/>Coba dengan Claude Haiku 5.5"]:::galat
-    pindah["Pengguna menekan tombol:<br/>selector pindah ke Haiku,<br/>pertanyaan yang sama diulang"]:::claude
+    panggil["Memanggil model"]:::lokal
+    hasil{"Hasil<br/>pemanggilan?"}:::tanya
+    ok(["Jawaban + label<br/>model penjawab"]):::lokal
+    retry["Percobaan ulang dengan jeda<br/>2, 4, lalu 8 detik<br/>maks. 4 percobaan"]:::lokal
+    permanen["Galat permanen:<br/>kunci atau ID model salah<br/>dilaporkan tanpa percobaan ulang"]:::galat
+    pesan["Pesan galat yang jelas: model<br/>membatasi permintaan, disertai tombol<br/>Coba dengan Claude Haiku 5.5"]:::galat
+    pindah["Pengguna menekan tombol:<br/>selektor berpindah ke Haiku,<br/>pertanyaan yang sama diulang"]:::claude
 
     mulai --> kunci
     kunci -- tidak --> tanpa
     kunci -- ya --> panggil --> hasil
     hasil -- berhasil --> ok
-    hasil -- "429 atau koneksi putus" --> retry
+    hasil -- "429 atau koneksi terputus" --> retry
     hasil -- "galat lain" --> permanen
     retry -- berhasil --> ok
-    retry -- "tetap kena batas" --> pesan
+    retry -- "tetap terkena pembatasan" --> pesan
     pesan --> pindah --> panggil
 ```
 
@@ -179,9 +183,9 @@ flowchart TD
 
 ### 6a. Satu putaran evaluasi
 
-`python scripts/run-evaluation.py --run-name <nama>` menjalankan tiga langkah. Tiap jawaban dan
-penilaian ditulis segera, jadi putaran yang terputus (mis. rate limit) bisa dilanjutkan dengan
-perintah yang sama.
+Perintah `python scripts/run-evaluation.py --run-name <nama>` menjalankan tiga langkah. Setiap
+jawaban dan penilaian langsung ditulis ke berkas sehingga putaran yang terhenti (misalnya akibat
+pembatasan laju) dapat dilanjutkan dengan perintah yang sama.
 
 ```mermaid
 flowchart LR
@@ -194,15 +198,15 @@ flowchart LR
     beku[("Kueri tulis ulang<br/>putaran pembanding<br/>--reuse-rewrites-from")]:::data
     gen["step_generate<br/>RagPipeline per pertanyaan<br/>keluaran: answers.jsonl"]:::groq
     juri["step_judge<br/>juri Sonnet 5.5<br/>relevansi dan faithfulness<br/>keluaran: judgments.jsonl"]:::claude
-    rep["step_report<br/>tambah hit retrieval dan<br/>penolakan benar<br/>keluaran: CSV + summary.md"]:::lokal
+    rep["step_report<br/>menambahkan hit retrieval dan<br/>penolakan benar<br/>keluaran: CSV + summary.md"]:::lokal
 
     uji --> gen --> juri --> rep
     beku -.-> gen
 ```
 
-Faithfulness dinilai dengan memecah jawaban menjadi klaim, lalu tiap klaim ditandai DIDUKUNG atau
-TIDAK DIDUKUNG oleh konteks. Hit retrieval dan penolakan benar dihitung tanpa juri, langsung dari
-pasal yang diambil dan dari kalimat "tidak ditemukan".
+Faithfulness dinilai dengan memecah jawaban menjadi klaim, kemudian setiap klaim ditandai
+DIDUKUNG atau TIDAK DIDUKUNG oleh konteks. Hit retrieval dan penolakan benar dihitung tanpa
+juri, langsung dari pasal yang diambil dan dari kalimat "tidak ditemukan".
 
 ### 6b. Siklus iterasi
 
@@ -213,7 +217,7 @@ flowchart TD
     classDef tanya fill:#f5f5f4,stroke:#78716c,color:#1c1917
 
     putaran(["Hasil satu putaran"]):::data
-    cek["Periksa manual<br/>3 skor faithfulness terendah"]:::lokal
+    cek["Pemeriksaan manual<br/>3 skor faithfulness terendah"]:::lokal
     diag{"Diagnosis"}:::tanya
     ret["Chunk tidak relevan:<br/>perbaiki retrieval<br/>top-k, embedding, fusi"]:::lokal
     prm["Chunk relevan, jawaban tidak setia:<br/>perbaiki prompt"]:::lokal
@@ -228,9 +232,9 @@ flowchart TD
     baru -.-> putaran
 ```
 
-Dua hal dijaga agar perbandingan antarputaran jujur: hanya **satu** parameter berubah per putaran,
-dan kueri tulis ulang dibekukan dari putaran pembanding karena penulis ulang tidak deterministik
-(tanpa itu, retrieval ikut berubah antarputaran).
+Dua prinsip dijaga agar perbandingan antarputaran sahih: hanya **satu** parameter yang diubah
+pada setiap putaran, dan kueri tulis ulang dibekukan dari putaran pembanding karena penulis
+ulang tidak deterministik (tanpa pembekuan, hasil retrieval ikut berubah antarputaran).
 
 ---
 
@@ -238,14 +242,14 @@ dan kueri tulis ulang dibekukan dari putaran pembanding karena penulis ulang tid
 
 | Tahap | Berkas |
 |---|---|
-| Baca PDF dan bersihkan teks | `dukcapil_pintar/ingestion.py` |
-| Pecah per pasal | `dukcapil_pintar/chunking.py` |
+| Membaca PDF dan membersihkan teks | `dukcapil_pintar/ingestion.py` |
+| Memecah per pasal | `dukcapil_pintar/chunking.py` |
 | Embedding lokal | `dukcapil_pintar/embedding.py` |
 | Indeks FAISS dan penggabungan hasil | `dukcapil_pintar/retrieval.py` |
 | Prompt penjawab, penulis ulang, dan juri (berversi) | `dukcapil_pintar/prompts.py` |
-| Klien Groq dan Anthropic, retry, rate limit | `dukcapil_pintar/providers.py` |
-| Tulis ulang kueri dan susun jawaban | `dukcapil_pintar/generation.py` |
-| Alur end-to-end | `dukcapil_pintar/pipeline.py` |
+| Klien Groq dan Anthropic, percobaan ulang, pembatasan laju | `dukcapil_pintar/providers.py` |
+| Penulisan ulang kueri dan penyusunan jawaban | `dukcapil_pintar/generation.py` |
+| Alur menyeluruh (*end-to-end*) | `dukcapil_pintar/pipeline.py` |
 | Antarmuka | `app.py`, `dukcapil_pintar/ui.py` |
 | Parameter dan daftar model | `dukcapil_pintar/config.py` |
 | Pembuatan indeks | `scripts/build-index.py` |

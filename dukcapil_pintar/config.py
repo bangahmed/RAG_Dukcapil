@@ -52,6 +52,20 @@ CHUNK_METADATA_JSONL_PATH = INDEX_DIR / "chunk_metadata.jsonl"
 TEST_SET_JSONL_PATH = EVALS_DIR / "test_set.jsonl"
 LOCAL_SECRETS_TOML_PATH = PROJECT_ROOT_DIR / ".streamlit" / "secrets.toml"
 
+# Chip contoh di halaman utama. Diambil persis dari set uji (evals/test_set.jsonl) dan
+# hanya yang lolos pada konfigurasi akhir (prompt-v1-1-frozen), agar contoh tidak
+# menjanjikan pertanyaan yang belum teruji: pasal kunci masuk top-4 dan faithfulness >= 8.
+#   q01 biaya (relevansi 10, faithfulness 10)
+#   q02 lama penyelesaian (relevansi 9, faithfulness 8)
+#   q07 akta lahir tanpa buku nikah, pertanyaan gabungan (relevansi 9, faithfulness 8)
+# q09 (pindah domisili) sengaja tidak dipakai: retrieval-nya gagal di evaluasi.
+STARTER_QUESTIONS = [
+    "Apakah mengurus dokumen kependudukan dipungut biaya?",
+    "Berapa lama KTP-el atau Kartu Keluarga harus selesai setelah semua persyaratan saya lengkap?",
+    "Anak saya lahir di kota lain dan kami belum punya buku nikah. "
+    "Apa saja syarat dan batas waktu mengurus akta kelahirannya?",
+]
+
 # --- Parameter RAG ----------------------------------------------------------
 
 # mpnet (±1,1 GB) dipilih karena hit rate retrieval lebih baik daripada MiniLM pada uji

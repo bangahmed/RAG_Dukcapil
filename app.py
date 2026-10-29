@@ -18,6 +18,7 @@ from dukcapil_pintar.config import (
     FAISS_INDEX_PATH,
     GROQ_API_KEY_NAME,
     IS_QUERY_REWRITE_ENABLED,
+    STARTER_QUESTIONS,
     TOP_K,
     find_answer_model_option,
     has_secret,
@@ -41,14 +42,6 @@ from dukcapil_pintar.ui import (
     render_user_turn,
 )
 
-# Diambil dari pertanyaan warga di Submission Minggu 2 §5. Ganti dengan tiga
-# pertanyaan set uji yang lolos evaluasi, agar contoh tidak menjanjikan
-# pertanyaan yang belum teruji.
-STARTER_QUESTIONS = [
-    "Apa syarat akta kelahiran bila orang tua belum punya buku nikah?",
-    "Bagaimana cara pindah domisili ke kabupaten/kota lain?",
-    "Apakah mengurus dokumen kependudukan dipungut biaya?",
-]
 _SESSION_PENDING_KEY = "pending_question"
 _SESSION_ASKED_KEY = "asked_question"
 _SESSION_RESULT_KEY = "last_result"

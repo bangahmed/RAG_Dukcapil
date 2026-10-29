@@ -1,5 +1,6 @@
-"""Komponen Streamlit halaman tanya-jawab:
-kolom 3xl di tengah, disclaimer satu baris yang tetap di atas,
+"""Komponen Streamlit halaman tanya-jawab.
+
+Isinya: kolom 3xl di tengah, disclaimer satu baris yang tetap di atas,
 keadaan kosong berupa logo + judul + tiga chip pertanyaan, satu giliran (bukan
 percakapan, karena pipeline tidak punya memori), pertanyaan sebagai gelembung kanan dan
 jawaban bertanda logo di kiri, jawaban lebih dulu lalu buktinya, serta composer berupa
