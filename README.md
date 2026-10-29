@@ -2,6 +2,8 @@
 
 Asisten generatif berbasis *Retrieval-Augmented Generation* (RAG) untuk panduan persyaratan dokumen kependudukan. Setiap jawaban disusun **hanya berdasarkan teks regulasi nasional** dan menyebutkan pasal rujukannya.
 
+Aplikasi daring: <https://dukcapil-pintar.streamlit.app>
+
 Tugas mata kuliah Introduction to Generative AI, Magister Kecerdasan Buatan, Universitas Dian Nuswantoro.
 
 Anggota kelompok:
