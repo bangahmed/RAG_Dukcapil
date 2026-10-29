@@ -1,0 +1,24 @@
+# Secret: API key hanya di sini atau di pengaturan Streamlit Cloud.
+.streamlit/secrets.toml
+.env
+
+# Lingkungan dan cache Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+.pytest_cache/
+
+# PDF sumber tidak di-commit; tautan resminya ada di data/sources.csv.
+data/raw/*
+!data/raw/.gitkeep
+
+# Embedding antara; indeks FAISS sudah memuat vektornya.
+data/index/embeddings.npy
+
+# Sistem operasi dan editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,26 @@
+# Konfigurasi alat pengembangan saja; aplikasi tidak di-install sebagai paket.
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# D = docstring wajib, N = konvensi penamaan, C901 = kompleksitas fungsi.
+select = ["E", "F", "W", "I", "N", "D", "B", "UP", "SIM", "C901"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+# Skrip yang dijalankan langsung sengaja bernama kebab-case (konvensi penamaan).
+"scripts/*.py" = ["N999"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["dukcapil_pintar"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

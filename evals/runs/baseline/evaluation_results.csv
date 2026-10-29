@@ -1,0 +1,15 @@
+question_id,question_type,question,answer_model_id,is_answer_found,is_correct_refusal,retrieval_hit,relevance_score,faithfulness_score,answer_input_tokens,answer_output_tokens,rewrite_input_tokens,rewrite_output_tokens,answer_total_tokens,latency_s
+q01,eksplisit,Apakah mengurus dokumen kependudukan dipungut biaya?,openai/gpt-oss-120b,True,,True,9.0,3.0,1046,371,201,269,1417,9.799
+q02,eksplisit,Berapa lama KTP-el atau Kartu Keluarga harus selesai setelah semua persyaratan saya lengkap?,openai/gpt-oss-120b,True,,True,8.0,7.0,1140,852,220,166,1992,4.526
+q03,eksplisit,Apa syarat membuat KTP-el baru bagi warga negara Indonesia?,openai/gpt-oss-120b,True,,True,9.0,2.5,1347,1022,205,76,2369,4.64
+q04,eksplisit,Apa saja berkas untuk membuat Kartu Identitas Anak (KIA) bagi anak berusia 8 tahun?,openai/gpt-oss-120b,True,,True,9.0,8.0,1353,791,221,96,2144,3.644
+q05,eksplisit,"Siapa yang wajib melaporkan kematian anggota keluarga, dan paling lambat berapa hari?",openai/gpt-oss-120b,True,,True,8.0,4.0,1034,517,214,222,1551,4.415
+q06,eksplisit,"Berapa lama batas waktu melaporkan kelahiran anak, dan apa yang terjadi bila terlambat?",openai/gpt-oss-120b,True,,True,9.0,5.0,844,991,217,353,1835,5.894
+q07,gabungan,Anak saya lahir di kota lain dan kami belum punya buku nikah. Apa saja syarat dan batas waktu mengurus akta kelahirannya?,openai/gpt-oss-120b,True,,True,9.0,7.0,1050,1243,231,346,2293,7.216
+q08,gabungan,Rumah kami terkena banjir dan semua dokumen kependudukan hilang. Bagaimana cara mengurus penggantinya?,openai/gpt-oss-120b,True,,True,9.0,7.0,833,1320,223,203,2153,5.995
+q09,gabungan,Saya pindah dari Bandung ke Semarang. Dokumen apa yang harus disiapkan supaya mendapat KTP-el dan KK baru di Semarang?,openai/gpt-oss-120b,True,,False,8.0,3.0,1081,1181,235,69,2262,4.429
+q10,gabungan,"Saya bekerja kontrak 8 bulan di kota lain dan tinggal di kos. Apakah saya wajib mendaftar sebagai penduduk di sana, dan bagaimana caranya?",openai/gpt-oss-120b,True,,False,9.0,4.0,790,923,245,371,1713,6.849
+q11,gabungan,"Bisakah saya mengurus KK, KTP-el, atau akta kelahiran tanpa datang ke kantor Disdukcapil?",openai/gpt-oss-120b,False,,False,2.0,10.0,1180,176,224,174,1356,3.284
+q12,di_luar_cakupan,Berapa biaya dan syarat membuat paspor?,openai/gpt-oss-120b,False,True,,9.0,10.0,757,130,195,196,887,3.632
+q13,di_luar_cakupan,Bagaimana cara memperpanjang SIM dan berapa biayanya?,openai/gpt-oss-120b,False,True,,6.0,10.0,927,145,203,201,1072,3.237
+q14,di_luar_cakupan,"Jam berapa loket Disdukcapil Kota Surabaya buka pada hari Sabtu, dan bagaimana mengambil nomor antrean online-nya?",openai/gpt-oss-120b,False,True,,9.0,10.0,1013,290,233,227,1303,3.764

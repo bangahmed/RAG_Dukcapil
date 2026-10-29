@@ -1,0 +1,14 @@
+{
+  "answer_model_id": "openai/gpt-oss-120b",
+  "frozen_rewrites_from": "baseline",
+  "judge_model_id": "claude-sonnet-5-5",
+  "judge_temperature": "tidak dapat diatur",
+  "embedding_model_name": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+  "top_k": 6,
+  "is_query_rewrite_enabled": true,
+  "max_chunk_chars": 1500,
+  "chunk_overlap_chars": 150,
+  "answer_prompt_version": "answer-v1.1",
+  "rewrite_prompt_version": "rewrite-v1",
+  "judge_prompt_version": "judge-v1"
+}

@@ -1,0 +1,11 @@
+# Palet ivory + clay, mengikuti halaman Ask CICADA. Font dan komponen halaman diatur
+# lewat CSS di dukcapil_pintar/ui.py.
+[theme]
+base = "light"
+primaryColor = "#aa5233"
+backgroundColor = "#faf9f5"
+secondaryBackgroundColor = "#f0eee6"
+textColor = "#1c1917"
+
+[client]
+toolbarMode = "minimal"

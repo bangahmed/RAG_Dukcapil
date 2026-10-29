@@ -1,0 +1,13 @@
+# Torch versi CPU: versi default di Linux membawa pustaka CUDA berukuran GB yang
+# tidak dipakai dan berisiko membuat deploy Streamlit Cloud gagal.
+--extra-index-url https://download.pytorch.org/whl/cpu
+# Versi dipatok dari lingkungan yang dipakai evaluasi (Python 3.13.13, Windows) agar
+# hasil dapat direproduksi. Di Streamlit Cloud pilih Python 3.13 pada Advanced settings.
+torch==2.14.1
+sentence-transformers==6.2.0
+faiss-cpu==1.15.1
+pymupdf==2.0
+numpy==2.5.4
+openai==3.40.0
+anthropic==2.3.0
+streamlit==1.66.1
