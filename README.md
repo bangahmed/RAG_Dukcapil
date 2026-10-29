@@ -17,7 +17,7 @@ Anggota kelompok:
 
 ## Arsitektur
 
-```
+```text
 LURING   (scripts/build-index.py)
   PDF regulasi → ekstraksi teks → chunk per pasal → embedding lokal → indeks FAISS
 
@@ -30,11 +30,11 @@ EVALUASI (scripts/run-evaluation.py)
   set uji → pipeline → [Sonnet 5.5 sebagai juri] → CSV hasil + ringkasan
 ```
 
-| Peran                                 | Model                                                                  |
-| ------------------------------------- | ---------------------------------------------------------------------- |
+| Peran                                 | Model                                                                |
+| ------------------------------------- | -------------------------------------------------------------------- |
 | Penjawab utama (bawaan)               | Groq `openai/gpt-oss-120b`                                           |
-| Penjawab pembanding dan cadangan      | Anthropic Claude Haiku 5.5                                             |
-| Juri evaluasi dan penulis ulang kueri | Anthropic Claude Sonnet 5.5                                            |
+| Penjawab pembanding dan cadangan      | Anthropic Claude Haiku 5.5                                           |
+| Juri evaluasi dan penulis ulang kueri | Anthropic Claude Sonnet 5.5                                          |
 | Embedding                             | Lokal, sentence-transformers `paraphrase-multilingual-mpnet-base-v2` |
 
 Anthropic digunakan sebagai pengganti Gemini (penyedia yang disebutkan dalam RPS). Groq tetap menjadi jalur generasi utama sesuai ketentuan RTM 2.
@@ -43,7 +43,7 @@ Diagram alur lengkap (pembuatan indeks, penanganan satu pertanyaan, pembatasan l
 
 ## Struktur
 
-```
+```text
 app.py                     halaman utama aplkasi (Streamlit)
 dukcapil_pintar/           paket inti
   config.py                lokasi berkas, parameter RAG, daftar model, pembaca secret
@@ -85,6 +85,7 @@ Setiap anggota kelompok menggunakan akun Groq masing-masing karena kuota tingkat
 
 1. Unduh dokumen dari kolom `source_url` pada `data/sources.csv`, lalu simpan di `data/raw/` dengan nama yang persis sama dengan kolom `file_name`. Dokumen hasil OCR dapat berupa berkas `.txt` (halaman dipisahkan dengan karakter *form feed* apabila ada).
 2. Bangun indeks:
+
    ```bash
    python scripts/build-index.py
    ```
@@ -101,10 +102,13 @@ streamlit run app.py
 
 1. Set uji tersedia pada `evals/test_set.jsonl` (14 pertanyaan). Format `evals/test_set_template.jsonl` dapat digunakan untuk menambah pertanyaan; setiap `expected_articles` (format `document_id:Pasal N`) harus diverifikasi langsung terhadap teks korpus.
 2. Jalankan putaran awal:
+
    ```bash
    python scripts/run-evaluation.py --run-name baseline
    ```
+
 3. Ubah satu parameter melalui variabel lingkungan, kemudian jalankan putaran baru, misalnya:
+
    ```bash
    set DUKCAPIL_TOP_K=6                 # macOS/Linux: export DUKCAPIL_TOP_K=6
    python scripts/run-evaluation.py --run-name top-k-6 --reuse-rewrites-from baseline
