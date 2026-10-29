@@ -22,3 +22,6 @@ data/index/embeddings.npy
 Thumbs.db
 .vscode/
 .idea/
+
+# Konfigurasi alat bantu pengembangan lokal (panel pratinjau), bukan bagian aplikasi.
+.claude/
