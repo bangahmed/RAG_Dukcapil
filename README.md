@@ -30,11 +30,11 @@ EVALUASI (scripts/run-evaluation.py)
   set uji → pipeline → [Sonnet 5.5 sebagai juri] → CSV hasil + ringkasan
 ```
 
-| Peran                                 | Model                                                                  |
-| ------------------------------------- | ---------------------------------------------------------------------- |
+| Peran                                 | Model                                                                |
+| ------------------------------------- | -------------------------------------------------------------------- |
 | Penjawab utama (bawaan)               | Groq `openai/gpt-oss-120b`                                           |
-| Penjawab pembanding dan cadangan      | Anthropic Claude Haiku 5.5                                             |
-| Juri evaluasi dan penulis ulang kueri | Anthropic Claude Sonnet 5.5                                            |
+| Penjawab pembanding dan cadangan      | Anthropic Claude Haiku 5.5                                           |
+| Juri evaluasi dan penulis ulang kueri | Anthropic Claude Sonnet 5.5                                          |
 | Embedding                             | Lokal, sentence-transformers `paraphrase-multilingual-mpnet-base-v2` |
 
 Anthropic digunakan sebagai pengganti Gemini (penyedia yang disebutkan dalam RPS). Groq tetap menjadi jalur generasi utama sesuai ketentuan RTM 2.
@@ -106,6 +106,7 @@ streamlit run app.py
    ```bash
    python scripts/run-evaluation.py --run-name baseline
    ```
+
 3. Ubah satu parameter melalui variabel lingkungan, kemudian jalankan putaran baru, misalnya:
 
    ```bash
