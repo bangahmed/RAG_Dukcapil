@@ -10,7 +10,7 @@ Evaluasi bertujuan menilai apakah DUKCAPIL-Pintar dapat diandalkan dalam menjawa
 warga mengenai dokumen kependudukan. Empat aspek yang diperiksa adalah sebagai berikut.
 
 1. Jawaban sesuai dengan pertanyaan yang diajukan (relevansi).
-2. Isi jawaban tidak melampaui teks peraturan yang diambil oleh sistem (kesetiaan pada sumber).
+2. Isi jawaban tidak melampaui teks peraturan yang diambil oleh sistem (kepatuhan pada sumber).
 3. Pasal yang diambil merupakan pasal yang tepat.
 4. Untuk pertanyaan di luar cakupan, sistem menyatakan bahwa informasi tidak ditemukan dan tidak
    memberikan jawaban tanpa dasar sumber.
