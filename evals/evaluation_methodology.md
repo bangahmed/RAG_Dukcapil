@@ -90,9 +90,9 @@ Tabel berikut merupakan ringkasan; teks lengkap tersedia pada `test_set.jsonl`.
 
 | Dimensi         | Cara mengukur                                                                                               | Skala    |
 | --------------- | ----------------------------------------------------------------------------------------------------------- | -------- |
-| Relevansi       | Juri LLM (Sonnet 5.5), prompt `judge-v1`                                                                  | 0-10     |
+| Relevansi       | Juri LLM (Sonnet 5.5), prompt `judge-v1`                                                                    | 0-10     |
 | Faithfulness    | Juri memecah jawaban menjadi klaim, setiap klaim DIDUKUNG/TIDAK DIDUKUNG konteks (Bab 7.4), skor akhir 0-10 | 0-10     |
-| Biaya           | Jumlah token jawaban per pertanyaan (masuk + keluar) dari `response.usage`, tanpa harga                   | token    |
+| Biaya           | Jumlah token jawaban per pertanyaan (masuk + keluar) dari `response.usage`, tanpa harga                     | token    |
 | Latency         | Waktu dari pertanyaan sampai jawaban, per tahap                                                             | detik    |
 | Hit retrieval   | Minimal satu pasal kunci masuk top-k; hanya untuk pertanyaan berpasal kunci (11)                            | proporsi |
 | Penolakan benar | Pertanyaan di luar cakupan dijawab "Informasi tidak ditemukan di dokumen"                                   | proporsi |
@@ -117,7 +117,7 @@ Tabel berikut merupakan ringkasan; teks lengkap tersedia pada `test_set.jsonl`.
 
 ## 5. Reproduksi hasil
 
-```
+```bash
 python scripts/build-index.py
 python scripts/run-evaluation.py --run-name baseline
 python scripts/run-evaluation.py --run-name prompt-v1-1-frozen --reuse-rewrites-from baseline
@@ -136,22 +136,22 @@ menghasilkan kueri yang sama (diuraikan pada bagian 8).
 **Putaran awal (`baseline`)** dengan Groq gpt-oss-120b, embedding mpnet, top-4, dan prompt
 `answer-v1`.
 
-| Jenis           | n  | Relevansi | Faithfulness | Hit retrieval | Penolakan benar | Token jawab | Latency (detik) |
-| --------------- | -- | --------- | ------------ | ------------- | --------------- | ----------- | --------------- |
-| eksplisit       | 6  | 8,67      | 4,92         | 1,00          | -               | 1.885       | 5,49            |
-| gabungan        | 5  | 7,40      | 6,20         | 0,40          | -               | 1.955       | 5,55            |
-| di luar cakupan | 3  | 8,00      | 10,00        | -             | 1,00            | 1.087       | 3,54            |
-| semua           | 14 | 8,07      | 6,46         | 0,73          | 1,00            | 1.739       | 5,09            |
+| Jenis           | n   | Relevansi | Faithfulness | Hit retrieval | Penolakan benar | Token jawab | Latency (detik) |
+| --------------- | --- | --------- | ------------ | ------------- | --------------- | ----------- | --------------- |
+| eksplisit       | 6   | 8,67      | 4,92         | 1,00          | -               | 1.885       | 5,49            |
+| gabungan        | 5   | 7,40      | 6,20         | 0,40          | -               | 1.955       | 5,55            |
+| di luar cakupan | 3   | 8,00      | 10,00        | -             | 1,00            | 1.087       | 3,54            |
+| semua           | 14  | 8,07      | 6,46         | 0,73          | 1,00            | 1.739       | 5,09            |
 
 **Ringkasan iterasi.** Rincian dan analisis tersedia pada `iteration_log.md`. Pada tiga putaran
 terakhir, kueri tulis ulang dibekukan dari putaran `baseline`.
 
-| Putaran            | Perubahan              | Faithfulness | Relevansi | Hit retrieval | Token jawab |
-| ------------------ | ---------------------- | ------------ | --------- | ------------- | ----------- |
-| baseline           | -                      | 6,46         | 8,07      | 0,73          | 1.739       |
+| Putaran            | Perubahan            | Faithfulness | Relevansi | Hit retrieval | Token jawab |
+| ------------------ | -------------------- | ------------ | --------- | ------------- | ----------- |
+| baseline           | -                    | 6,46         | 8,07      | 0,73          | 1.739       |
 | prompt-v1-1-frozen | prompt `answer-v1.1` | 7,93         | 8,21      | 0,73          | 1.585       |
-| top-k-6            | `TOP_K` 4 → 6       | 8,71         | 8,14      | 0,73          | 2.022       |
-| rrf                | fusi skor-maks → RRF  | 7,93         | 7,50      | 0,73          | 1.622       |
+| top-k-6            | `TOP_K` 4 → 6        | 8,71         | 8,14      | 0,73          | 2.022       |
+| rrf                | fusi skor-maks → RRF | 7,93         | 7,50      | 0,73          | 1.622       |
 
 Latency tidak dibandingkan antarputaran yang kueri tulis ulangnya dibekukan karena tahap
 penulisan ulang kueri dilewati pada putaran tersebut.
